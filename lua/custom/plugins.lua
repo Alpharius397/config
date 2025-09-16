@@ -42,7 +42,20 @@ local plugins = {
   },
   {
     "nvimtools/none-ls.nvim",
-    ft = {"python"},
+    ft = {
+          "css",
+          "graphql",
+          "html",
+          "javascript",
+          "javascriptreact",
+          "json",
+          "less",
+          "markdown",
+          "scss",
+          "typescript",
+          "typescriptreact",
+          "yaml",
+        },
     opts = function()
       return require "custom.configs.null-ls"
     end,
@@ -114,23 +127,7 @@ local plugins = {
     },
 
     config = function ()
-      require("prettier").setup {
-        bin = 'prettier',
-        filetypes = {
-          "css",
-          "graphql",
-          "html",
-          "javascript",
-          "javascriptreact",
-          "json",
-          "less",
-          "markdown",
-          "scss",
-          "typescript",
-          "typescriptreact",
-          "yaml",
-        },
-        }
+      require("prettier").setup()
     end
   },
   {
