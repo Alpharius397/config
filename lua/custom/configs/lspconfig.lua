@@ -11,32 +11,13 @@ local pythonServer = { "ruff", "pyright" }
 local jsServer = { 'tailwindcss', 'ts_ls', 'jsonls', 'eslint' }
 
 local function goError()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local row = vim.api.nvim_win_get_cursor(0)[1]
-
-  local cur_line = vim.api.nvim_buf_get_lines(bufnr, row-1, row, false)[1] or ""
-  local indent = string.match(cur_line, "^%s*") or ""
-
-  local shift = vim.api.nvim_get_option_value("shiftwidth", { scope = "local" })
-  local use_spaces = vim.api.nvim_get_option_value("expandtab", { scope = "local" })
-
-  local indent_unit = (use_spaces and string.rep(" ", shift)) or "\t"
-
-  local block = {
-    indent .. "if err != nil {",
-    indent .. indent_unit,
-    indent .. "}",
-  }
-
-  vim.api.nvim_buf_set_lines(bufnr, row-1, row-1, false, block)
-
-  vim.api.nvim_win_set_cursor(0, { row + 1, #indent + #indent_unit })
-
+  return "<ESC>oif err != nil {<CR>}<ESC>O"
 end
 
 lspconfig.gopls.setup {
   on_attach = function(client, buffer)
-    vim.keymap.set('i', '<C-e>', goError, { noremap = true, silent = true })
+    vim.keymap.set('n', '<leader>ee', goError(), { noremap = true, silent = true })
+    vim.keymap.set('i', '<C-e>', goError(), { noremap = true, silent = true })
     on_attach(client, buffer)
   end,
 
@@ -56,7 +37,7 @@ lspconfig.gopls.setup {
 
 lspconfig.clangd.setup {
   on_attach = function(client, buffer)
-    client.server_capabilities.signatureHelpProvider = false
+    client.server_capabilities.signatureHelpProvider = 
     on_attach(client, buffer)
   end,
   capabilities = capabilities,
@@ -70,8 +51,8 @@ for _, lsp in ipairs(jsServer) do
 end
 
 local function type_ignore()
-  local ignore = " # type: ignore"
-  vim.api.nvim_paste(ignore, false, -1)
+
+  return "<ESC>A #type: ignore<ESC><CR>"
 end
 
 for _, lsp in ipairs(pythonServer) do
@@ -79,7 +60,8 @@ for _, lsp in ipairs(pythonServer) do
     on_attach = function(client, buffer)
       on_attach(client, buffer)
 
-      vim.keymap.set('i', '<C-t>', type_ignore, { noremap = true, silent = true })
+      vim.keymap.set('n', '<leader>tt', type_ignore(), { noremap = true, silent = true })
+      vim.keymap.set('i', '<C-t>', type_ignore(), { noremap = true, silent = true })
     end,
     capabilities = capabilities,
     filetypes = { "python" },
