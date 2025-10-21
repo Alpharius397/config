@@ -6,9 +6,11 @@ local capabilities = config.capabilities
 
 local lspconfig = require("lspconfig")
 
+local util = require("lspconfig.util")
+
 local pythonServer = { "ruff", "pyright" }
 
-local jsServer = { 'tailwindcss', 'ts_ls', 'jsonls', 'eslint' }
+local jsServer = { 'tailwindcss', 'jsonls', 'eslint' }
 
 local function goError()
   return "<ESC>oif err != nil {<CR>}<ESC>O"
@@ -16,8 +18,8 @@ end
 
 lspconfig.gopls.setup {
   on_attach = function(client, buffer)
-    vim.keymap.set('n', '<leader>ee', goError(), { noremap = true, silent = true })
-    vim.keymap.set('i', '<C-e>', goError(), { noremap = true, silent = true })
+    vim.keymap.set('n', '<leader>ee', goError(), { noremap = true, silent = true, desc = "Error Block" })
+    vim.keymap.set('i', '<C-e>', goError(), { noremap = true, silent = true, desc = "Error Block" })
     on_attach(client, buffer)
   end,
 
@@ -37,21 +39,28 @@ lspconfig.gopls.setup {
 
 lspconfig.clangd.setup {
   on_attach = function(client, buffer)
-    client.server_capabilities.signatureHelpProvider = 
     on_attach(client, buffer)
   end,
   capabilities = capabilities,
 }
 
+local function tsExpectError()
+  return "<ESC>O//@ts-expect-error "
+end
+
+local function tsIgnoreError()
+  return "<ESC>O//@ts-ignore "
+end
+
 for _, lsp in ipairs(jsServer) do
   lspconfig[lsp].setup {
     on_attach = on_attach,
+
     capabilities = capabilities,
   }
 end
 
 local function type_ignore()
-
   return "<ESC>A #type: ignore<ESC><CR>"
 end
 
@@ -60,8 +69,8 @@ for _, lsp in ipairs(pythonServer) do
     on_attach = function(client, buffer)
       on_attach(client, buffer)
 
-      vim.keymap.set('n', '<leader>tt', type_ignore(), { noremap = true, silent = true })
-      vim.keymap.set('i', '<C-t>', type_ignore(), { noremap = true, silent = true })
+      vim.keymap.set('n', '<leader>tt', type_ignore(), { noremap = true, silent = true, desc = "Type Ignore" })
+      vim.keymap.set('i', '<C-t>', type_ignore(), { noremap = true, silent = true, desc = "Type Ignore" })
     end,
     capabilities = capabilities,
     filetypes = { "python" },
@@ -89,4 +98,32 @@ lspconfig.elixirls.setup {
 lspconfig.bashls.setup {
   cmd = { 'bash-language-server', 'start' },
   filetypes = { 'bash', 'sh' }
+}
+
+local function ts_on_attach(client, buffer)
+  vim.keymap.set('n', '<leader>je', tsExpectError(), { noremap = true, silent = true, desc = "insert expects-errors" })
+  vim.keymap.set('n', '<leader>ji', tsIgnoreError(), { noremap = true, silent = true, desc = "insert ignore-errors" })
+  on_attach(client, buffer)
+end
+
+local deno_root = util.root_pattern("deno.json", "deno.jsonc")
+local node_root = util.root_pattern("package.json", "tsconfig.json", "jsconfig.json")
+
+lspconfig.denols.setup {
+  on_attach = ts_on_attach,
+  root_dir = function(fname)
+    return deno_root(fname)
+  end,
+  capabilities = capabilities,
+}
+
+lspconfig.ts_ls.setup {
+  on_attach = ts_on_attach,
+  root_dir = function(fname)
+    if deno_root(fname) then
+      return nil
+    end
+    return node_root(fname)
+  end,
+  single_file_support = false,
 }

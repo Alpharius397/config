@@ -43,19 +43,19 @@ local plugins = {
   {
     "nvimtools/none-ls.nvim",
     ft = {
-          "css",
-          "graphql",
-          "html",
-          "javascript",
-          "javascriptreact",
-          "json",
-          "less",
-          "markdown",
-          "scss",
-          "typescript",
-          "typescriptreact",
-          "yaml",
-        },
+      "css",
+      "graphql",
+      "html",
+      "javascript",
+      "javascriptreact",
+      "json",
+      "less",
+      "markdown",
+      "scss",
+      "typescript",
+      "typescriptreact",
+      "yaml",
+    },
     opts = function()
       return require "custom.configs.null-ls"
     end,
@@ -88,31 +88,39 @@ local plugins = {
         "debugpy",
         "mypy",
         "ruff",
-        "gopls",
         "pyright",
+
+        "gopls",
+
         "clangd",
-        'tailwindcss',
-        'ts_ls',
-        'jsonls',
-        'eslint',
-        "html",
-        "cssls",
+
+        "tailwindcss-language-server",
+        "typescript-language-server",
+        "eslint_d",
+        "html-lsp",
+        "css-lsp",
+        "json-lsp",
+        "ts_ls",
+        "denols",
         "djlsp",
-        "postgres_lsp"
+        "django-template-lsp",
+        "djlint",
+
+        "sqls",
       },
     },
   },
   {
     "neovim/nvim-lspconfig",
-     config = function()
+    config = function()
       require "plugins.configs.lspconfig"
       require "custom.configs.lspconfig"
-     end,
+    end,
   },
   {
     "https://github.com/Maan2003/lsp_lines.nvim",
     config = function()
-    require("lsp_lines").setup()
+      require("lsp_lines").setup()
       vim.diagnostic.config({
         virtual_text = false,
         virtual_lines = { only_current_line = true }, -- optional
@@ -126,7 +134,7 @@ local plugins = {
       'nvim-lua/plenary.nvim'
     },
 
-    config = function ()
+    config = function()
       require("prettier").setup()
     end
   },
@@ -139,7 +147,7 @@ local plugins = {
       local elixirls = require("elixir.elixirls")
 
       elixir.setup {
-        nextls = {enable = true},
+        nextls = { enable = true },
         elixirls = {
           enable = true,
           settings = elixirls.settings {
