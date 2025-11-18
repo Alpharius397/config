@@ -42,20 +42,12 @@ lspconfig.clangd.setup {
     on_attach(client, buffer)
   end,
   capabilities = capabilities,
+  filetypes = { "c", "cpp" }
 }
-
-local function tsExpectError()
-  return "<ESC>O//@ts-expect-error "
-end
-
-local function tsIgnoreError()
-  return "<ESC>O//@ts-ignore "
-end
 
 for _, lsp in ipairs(jsServer) do
   lspconfig[lsp].setup {
     on_attach = on_attach,
-
     capabilities = capabilities,
   }
 end
@@ -82,17 +74,23 @@ local normalConfigLsp = { "cssls", "html", "djlsp" }
 for _, lsp in ipairs(normalConfigLsp) do
   lspconfig[lsp].setup {
     on_attach = on_attach,
-    capabilities = capabilities
+    capabilities = capabilities,
+    filetypes = { "css", "html" }
   }
 end
 
 lspconfig.postgres_lsp.setup {
+  cmd = { "postgres-language-server", "lsp-proxy" },
   on_attach = on_attach,
-  capabilities = capabilities
+  capabilities = capabilities,
+  filetypes = { "sql" },
 }
 
 lspconfig.elixirls.setup {
-  cmd = { "/home/omnissiah/.elixir/elixir-ls/release/language_server.sh" },
+  cmd = { "language_server.sh" },
+  on_attach = on_attach,
+  capabilities = capabilities,
+  filetypes = { "elixir", "heex", "eex" }
 }
 
 lspconfig.bashls.setup {
@@ -100,9 +98,23 @@ lspconfig.bashls.setup {
   filetypes = { 'bash', 'sh' }
 }
 
+local function tsExpectError()
+  return "<ESC>O//@ts-expect-error "
+end
+
+local function tsIgnoreError()
+  return "<ESC>O//@ts-ignore "
+end
+
+local function jsDocComment()
+  return "<ESC>O/**  */<ESC>2hi"
+end
+
+
 local function ts_on_attach(client, buffer)
   vim.keymap.set('n', '<leader>je', tsExpectError(), { noremap = true, silent = true, desc = "insert expects-errors" })
   vim.keymap.set('n', '<leader>ji', tsIgnoreError(), { noremap = true, silent = true, desc = "insert ignore-errors" })
+  vim.keymap.set('n', '<leader>jc', jsDocComment(), { noremap = true, silent = true, desc = "insert jsDoc" })
   on_attach(client, buffer)
 end
 
