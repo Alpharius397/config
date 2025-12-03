@@ -6,20 +6,30 @@ local capabilities = config.capabilities
 
 local lspconfig = require("lspconfig")
 
-local util = require("lspconfig.util")
+local lspaction = require("custom.configs.lspaction")
 
 local pythonServer = { "ruff", "pyright" }
 
-local jsServer = { 'tailwindcss', 'jsonls', 'eslint' }
+local jsServer = { 'tailwindcss', 'eslint' }
 
-local function goError()
-  return "<ESC>oif err != nil {<CR>}<ESC>O"
+local jsonServer = { "jsonls" }
+
+local normalConfigLsp = { "cssls", "html", "djlsp" }
+
+local function ts_on_attach(client, buffer)
+  vim.keymap.set('n', '<leader>je', lspaction.tsExpectError,
+    { noremap = true, silent = true, desc = "insert expects-errors" })
+  vim.keymap.set('n', '<leader>ji', lspaction.tsIgnoreError,
+    { noremap = true, silent = true, desc = "insert ignore-errors" })
+  vim.keymap.set('n', '<leader>jc', lspaction.jsDocComment, { noremap = true, silent = true, desc = "insert jsDoc" })
+  vim.keymap.set('n', '<leader>pe', lspaction.expressComment, { noremap = true, silent = true, desc = "insert express/server comment" })
+  on_attach(client, buffer)
 end
 
 lspconfig.gopls.setup {
   on_attach = function(client, buffer)
-    vim.keymap.set('n', '<leader>ee', goError(), { noremap = true, silent = true, desc = "Error Block" })
-    vim.keymap.set('i', '<C-e>', goError(), { noremap = true, silent = true, desc = "Error Block" })
+    vim.keymap.set('n', '<leader>ee', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
+    vim.keymap.set('i', '<C-e>', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
     on_attach(client, buffer)
   end,
 
@@ -45,31 +55,18 @@ lspconfig.clangd.setup {
   filetypes = { "c", "cpp" }
 }
 
-for _, lsp in ipairs(jsServer) do
-  lspconfig[lsp].setup {
-    on_attach = on_attach,
-    capabilities = capabilities,
-  }
-end
-
-local function type_ignore()
-  return "<ESC>A #type: ignore<ESC><CR>"
-end
-
 for _, lsp in ipairs(pythonServer) do
   lspconfig[lsp].setup {
     on_attach = function(client, buffer)
       on_attach(client, buffer)
 
-      vim.keymap.set('n', '<leader>tt', type_ignore(), { noremap = true, silent = true, desc = "Type Ignore" })
-      vim.keymap.set('i', '<C-t>', type_ignore(), { noremap = true, silent = true, desc = "Type Ignore" })
+      vim.keymap.set('n', '<leader>tt', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
+      vim.keymap.set('i', '<C-t>', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
     end,
     capabilities = capabilities,
     filetypes = { "python" },
   }
 end
-
-local normalConfigLsp = { "cssls", "html", "djlsp" }
 
 for _, lsp in ipairs(normalConfigLsp) do
   lspconfig[lsp].setup {
@@ -98,33 +95,10 @@ lspconfig.bashls.setup {
   filetypes = { 'bash', 'sh' }
 }
 
-local function tsExpectError()
-  return "<ESC>O//@ts-expect-error "
-end
-
-local function tsIgnoreError()
-  return "<ESC>O//@ts-ignore "
-end
-
-local function jsDocComment()
-  return "<ESC>O/**  */<ESC>2hi"
-end
-
-
-local function ts_on_attach(client, buffer)
-  vim.keymap.set('n', '<leader>je', tsExpectError(), { noremap = true, silent = true, desc = "insert expects-errors" })
-  vim.keymap.set('n', '<leader>ji', tsIgnoreError(), { noremap = true, silent = true, desc = "insert ignore-errors" })
-  vim.keymap.set('n', '<leader>jc', jsDocComment(), { noremap = true, silent = true, desc = "insert jsDoc" })
-  on_attach(client, buffer)
-end
-
-local deno_root = util.root_pattern("deno.json", "deno.jsonc")
-local node_root = util.root_pattern("package.json", "tsconfig.json", "jsconfig.json")
-
 lspconfig.denols.setup {
   on_attach = ts_on_attach,
   root_dir = function(fname)
-    return deno_root(fname)
+    return lspaction.deno_root(fname)
   end,
   capabilities = capabilities,
 }
@@ -132,10 +106,26 @@ lspconfig.denols.setup {
 lspconfig.ts_ls.setup {
   on_attach = ts_on_attach,
   root_dir = function(fname)
-    if deno_root(fname) then
+    if lspaction.deno_root(fname) then
       return nil
     end
-    return node_root(fname)
+    return lspaction.node_root(fname)
   end,
-  single_file_support = false,
 }
+
+
+for _, lsp in ipairs(jsServer) do
+  lspconfig[lsp].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+  }
+end
+
+for _, lsp in ipairs(jsonServer) do
+  lspconfig[lsp].setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    filetypes = { "json" }
+  }
+end
