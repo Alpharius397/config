@@ -12,17 +12,29 @@ local pythonServer = { "ruff", "pyright" }
 
 local jsServer = { 'tailwindcss', 'eslint' }
 
-local jsonServer = { "jsonls" }
+-- local jsonServer = { "jsonls" }
 
 local normalConfigLsp = { "cssls", "html", "djlsp" }
 
 local function ts_on_attach(client, buffer)
   vim.keymap.set('n', '<leader>je', lspaction.tsExpectError,
     { noremap = true, silent = true, desc = "insert expects-errors" })
+
   vim.keymap.set('n', '<leader>ji', lspaction.tsIgnoreError,
     { noremap = true, silent = true, desc = "insert ignore-errors" })
+
   vim.keymap.set('n', '<leader>jc', lspaction.jsDocComment, { noremap = true, silent = true, desc = "insert jsDoc" })
-  vim.keymap.set('n', '<leader>pe', lspaction.expressComment, { noremap = true, silent = true, desc = "insert express/server comment" })
+
+  vim.keymap.set('n', '<leader>pe', lspaction.expressComment,
+    { noremap = true, silent = true, desc = "insert express/server comment" })
+
+    vim.keymap.set('n', '<leader>jse', lspaction.tsxExpectError,
+    { noremap = true, silent = true, desc = "insert tsx expects-errors" })
+
+  vim.keymap.set('n', '<leader>jsi', lspaction.tsxIgnoreError,
+    { noremap = true, silent = true, desc = "insert tsx ignore-errors" })
+
+
   on_attach(client, buffer)
 end
 
@@ -122,10 +134,12 @@ for _, lsp in ipairs(jsServer) do
   }
 end
 
-for _, lsp in ipairs(jsonServer) do
-  lspconfig[lsp].setup {
-    on_attach = on_attach,
-    capabilities = capabilities,
-    filetypes = { "json" }
-  }
-end
+lspconfig.jsonls.setup {
+  settings = {
+    json = {
+      schemas = require('schemastore').json.schemas(),
+      validate = { enable = true },
+    },
+  },
+  filetypes = { "json", "jsonc" }
+}

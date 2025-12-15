@@ -15,8 +15,11 @@ return {
   type_ignore = "<ESC>A #type: ignore<ESC><CR>",
 
   tsExpectError = "<ESC>O//@ts-expect-error ",
+  tsxExpectError = "<ESC>O{/** @ts-expect-error  */}<ESC>3hi",
 
   tsIgnoreError = "<ESC>O//@ts-ignore ",
+
+  tsxIgnoreError = "<ESC>O{/** @ts-ignore  */}<ESC>3hi",
 
   jsDocComment = "<ESC>O/**  */<ESC>2hi",
 

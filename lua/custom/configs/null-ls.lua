@@ -16,6 +16,7 @@ local opts = {
         "javascript",
         "javascriptreact",
         "json",
+        "jsonc",
         "less",
         "markdown",
         "scss",

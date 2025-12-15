@@ -3,6 +3,9 @@ local plugins = {
     "nvim-neotest/nvim-nio",
   },
   {
+    "b0o/SchemaStore.nvim",
+  },
+  {
     "rcarriga/nvim-dap-ui",
     dependencies = "mfussenegger/nvim-dap",
     config = function()
@@ -49,6 +52,7 @@ local plugins = {
       "javascript",
       "javascriptreact",
       "json",
+      "jsonc",
       "less",
       "markdown",
       "scss",
@@ -89,23 +93,17 @@ local plugins = {
         "mypy",
         "ruff",
         "pyright",
-
         "gopls",
-
         "clangd",
-
         "tailwindcss-language-server",
         "typescript-language-server",
         "eslint_d",
         "html-lsp",
         "css-lsp",
         "json-lsp",
-        "ts_ls",
-        "denols",
-        "djlsp",
+        "deno",
         "django-template-lsp",
         "djlint",
-
         "sqls",
       },
     },
