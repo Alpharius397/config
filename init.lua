@@ -22,3 +22,7 @@ require "plugins"
 
 vim.keymap.set('n', "<C-t>", '<cmd> lua vim.diagnostic.open_float()<CR>')
 vim.keymap.set("n", "<C-e>", require("lsp_lines").toggle, { desc = "Toggle lsp_lines" })
+
+if vim.o.termguicolors == false then
+  vim.o.termguicolors = true
+end

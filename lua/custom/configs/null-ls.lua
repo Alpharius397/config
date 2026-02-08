@@ -8,6 +8,7 @@ local opts = {
   sources = {
     null_ls.builtins.formatting.shfmt,
     null_ls.builtins.formatting.black,
+    null_ls.builtins.formatting.sql_formatter,
     null_ls.builtins.formatting.prettier.with({
       filetypes = {
         "css",
@@ -36,7 +37,7 @@ local opts = {
   },
   on_attach = function(client, bufnr)
     if client.supports_method("textDocument/formatting") then
-      vim.keymap.set("n", "<Leader-f>", function()
+      vim.keymap.set("n", "<leader>ft", function()
         vim.lsp.buf.format({ bufnr = vim.api.nvim_get_current_buf() })
       end, { buffer = bufnr, desc = "[lsp] format" })
 
@@ -53,10 +54,11 @@ local opts = {
     end
 
     if client.supports_method("textDocument/rangeFormatting") then
-      vim.keymap.set("x", "<Leader>f", function()
+      vim.keymap.set("x", "<leader>ft", function()
         vim.lsp.buf.format({ bufnr = vim.api.nvim_get_current_buf() })
       end, { buffer = bufnr, desc = "[lsp] format" })
     end
   end,
 }
+
 return opts
