@@ -88,23 +88,31 @@ local plugins = {
     "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
+        "autotools-language-server",
+        "bash-language-server",
         "black",
-        "debugpy",
-        "mypy",
-        "ruff",
-        "pyright",
-        "gopls",
         "clangd",
-        "tailwindcss-language-server",
-        "typescript-language-server",
-        "eslint_d",
-        "html-lsp",
         "css-lsp",
-        "json-lsp",
         "deno",
         "django-template-lsp",
         "djlint",
+        "elixir-ls",
+        "eslint_d",
+        "gopls",
+        "html-lsp",
+        "json-lsp",
+        "lua-language-server",
+        "marksman",
+        "mypy",
+        "postgres-language-server",
+        "prettier",
+        "pyright",
+        "ruff",
+        "rust-analyzer",
+        "sql-formatter",
         "sqls",
+        "tailwindcss-language-server",
+        "typescript-language-server",
       },
     },
   },
@@ -166,6 +174,10 @@ local plugins = {
     dependencies = {
       "nvim-lua/plenary.nvim",
     },
+  },{
+    "mrcjkb/rustaceanvim",
+    version = "^8",
+    lazy = false
   }
 }
 

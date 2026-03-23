@@ -28,12 +28,17 @@ local function ts_on_attach(client, buffer)
   vim.keymap.set('n', '<leader>pe', lspaction.expressComment,
     { noremap = true, silent = true, desc = "insert express/server comment" })
 
-    vim.keymap.set('n', '<leader>jse', lspaction.tsxExpectError,
+  vim.keymap.set('n', '<leader>jse', lspaction.tsxExpectError,
     { noremap = true, silent = true, desc = "insert tsx expects-errors" })
 
   vim.keymap.set('n', '<leader>jsi', lspaction.tsxIgnoreError,
     { noremap = true, silent = true, desc = "insert tsx ignore-errors" })
 
+  vim.keymap.set('n', '<leader>je', lspaction.eslintTsDisable,
+    { noremap = true, silent = true, desc = "insert ts eslint disable" })
+
+  vim.keymap.set('n', '<leader>jse', lspaction.eslintTsxDisable,
+    { noremap = true, silent = true, desc = "insert tsx eslint disable" })
 
   on_attach(client, buffer)
 end
@@ -64,6 +69,12 @@ lspconfig.clangd.setup {
     on_attach(client, buffer)
   end,
   capabilities = capabilities,
+  cmd = {
+    "clangd",
+    "--clang-tidy",
+    "--background-index",
+    "--enable-config"
+  },
   filetypes = { "c", "cpp" }
 }
 
@@ -142,4 +153,14 @@ lspconfig.jsonls.setup {
     },
   },
   filetypes = { "json", "jsonc" }
+}
+
+lspconfig.autotools_ls.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+}
+
+lspconfig.rust_analyzer.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
 }
