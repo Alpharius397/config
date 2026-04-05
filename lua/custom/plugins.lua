@@ -153,9 +153,10 @@ local plugins = {
       local elixirls = require("elixir.elixirls")
 
       elixir.setup {
-        nextls = { enable = true },
+        nextls = { enable = false },
         elixirls = {
           enable = true,
+          cmd = "language_server.sh",
           settings = elixirls.settings {
             dialyzerEnabled = false,
             enableTestLenses = false,

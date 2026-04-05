@@ -25,6 +25,7 @@ local opts = {
         "typescriptreact",
         "yaml",
       },
+      extra_args = { "--trailing-comma", "none" },
     }),
     null_ls.builtins.formatting.djhtml,
     null_ls.builtins.diagnostics.shellcheck,

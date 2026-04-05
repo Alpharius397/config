@@ -152,7 +152,11 @@ lspconfig.jsonls.setup {
       validate = { enable = true },
     },
   },
-  filetypes = { "json", "jsonc" }
+  filetypes = { "json", "jsonc" },
+  format = {
+    enable = true,
+  },
+  trailingCommas = "none"
 }
 
 lspconfig.autotools_ls.setup {

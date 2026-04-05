@@ -8,12 +8,12 @@ echo -e "Destination: $des\n"
 
 read -p "Is it correct path [Y/N]: " -r CONFIRM
 
-while [[ $CONFIRM != "Y" && $CONFIRM != "N" ]]; do
+while [[ $CONFIRM != "y" && $CONFIRM != "n" && $CONFIRM != "Y" && $CONFIRM != "N" ]]; do
 	echo -e "Choice must be 'Y' or 'N'\n"
 	read -p "Is it correct path [Y/N]: " -r CONFIRM
 done
 
-if [[ $CONFIRM == "N" ]]; then
+if [[ $CONFIRM == "N" || $CONFIRM == "n" ]]; then
 	return
 fi
 
