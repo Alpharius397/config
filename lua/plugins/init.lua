@@ -2,8 +2,9 @@
 -- List of all default plugins & their definitions
 local default_plugins = {
 
-  "nvim-lua/plenary.nvim",
-
+  {
+  "nvim-lua/plenary.nvim"
+},
   {
     "NvChad/base46",
     branch = "v2.0",
@@ -113,14 +114,6 @@ local default_plugins = {
       end, {})
 
       vim.g.mason_binaries_list = opts.ensure_installed
-    end,
-  },
-
-  {
-    "neovim/nvim-lspconfig",
-    event = "User FilePost",
-    config = function()
-      require "plugins.configs.lspconfig"
     end,
   },
 
@@ -243,13 +236,9 @@ local default_plugins = {
   },
   {
     "folke/todo-comments.nvim",
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = { signs = false }
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = { signs = true },
   },
-  {
-    'nvim-tree/nvim-web-devicons',
-    lazy = true
-  }
 }
 
 local config = require("core.utils").load_config()
@@ -261,3 +250,5 @@ if #config.plugins > 0 then
 end
 
 require("lazy").setup(default_plugins, config.lazy_nvim)
+require("custom.configs.lspconfig")
+require("custom.mappings")

@@ -77,7 +77,7 @@ M.general = {
 M.tabufline = {
   plugin = true,
 
-    n = {
+  n = {
     -- cycle through buffers
     ["<tab>"] = {
       function()
@@ -102,7 +102,7 @@ M.tabufline = {
     },
 
     ["<leader>ax"] = {
-      function ()
+      function()
         require("nvchad.tabufline").closeAllBufs()
       end,
       "Close all buffers"
@@ -116,16 +116,14 @@ M.comment = {
   -- toggle comment in both modes
   n = {
     ["<leader>/"] = {
-      function()
-        require("Comment.api").toggle.linewise.current()
-      end,
+      "<cmd> gcc <CR>",
       "Toggle comment",
     },
   },
 
   v = {
     ["<leader>/"] = {
-      "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>",
+      "<cmd> gcc <CR>",
       "Toggle comment",
     },
   },
@@ -181,7 +179,7 @@ M.lspconfig = {
 
     ["<leader>ra"] = {
       function()
-        require("nvchad.renamer").open()
+        vim.lsp.buf.rename()
       end,
       "LSP rename",
     },
@@ -209,14 +207,14 @@ M.lspconfig = {
 
     ["[d"] = {
       function()
-        vim.diagnostic.goto_prev { float = { border = "rounded" } }
+        vim.diagnostic.jump({ count = -1, float = true })
       end,
       "Goto prev",
     },
 
     ["]d"] = {
       function()
-        vim.diagnostic.goto_next { float = { border = "rounded" } }
+        vim.diagnostic.jump({ count = 1, float = true })
       end,
       "Goto next",
     },

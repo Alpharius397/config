@@ -77,7 +77,9 @@ M.load_mappings = function(section, mapping_opt)
     local mappings = require("core.utils").load_config().mappings
 
     if type(section) == "string" then
-      mappings[section]["plugin"] = nil
+      if mappings[section] ~= nil then
+        mappings[section]["plugin"] = nil
+      end
       mappings = { mappings[section] }
     end
 
@@ -99,17 +101,7 @@ M.lazy_load = function(plugin)
 
         -- dont defer for treesitter as it will show slow highlighting
         -- This deferring only happens only when we do "nvim filename"
-        if plugin ~= "nvim-treesitter" then
-          vim.schedule(function()
-            require("lazy").load { plugins = plugin }
-
-            if plugin == "nvim-lspconfig" then
-              vim.cmd "silent! do FileType"
-            end
-          end, 0)
-        else
-          require("lazy").load { plugins = plugin }
-        end
+        require("lazy").load { plugins = plugin }
       end
     end,
   })

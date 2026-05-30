@@ -1,18 +1,8 @@
-local config = require("plugins.configs.lspconfig")
-
-local on_attach = config.on_attach
-
-local capabilities = config.capabilities
-
-local lspconfig = require("lspconfig")
-
 local lspaction = require("custom.configs.lspaction")
 
 local pythonServer = { "ruff", "pyright" }
 
 local jsServer = { 'tailwindcss', 'eslint' }
-
--- local jsonServer = { "jsonls" }
 
 local normalConfigLsp = { "cssls", "html", "djlsp" }
 
@@ -34,137 +24,160 @@ local function ts_on_attach(client, buffer)
   vim.keymap.set('n', '<leader>jsi', lspaction.tsxIgnoreError,
     { noremap = true, silent = true, desc = "insert tsx ignore-errors" })
 
-  vim.keymap.set('n', '<leader>je', lspaction.eslintTsDisable,
+  vim.keymap.set('n', '<leader>jd', lspaction.eslintTsDisable,
     { noremap = true, silent = true, desc = "insert ts eslint disable" })
 
-  vim.keymap.set('n', '<leader>jse', lspaction.eslintTsxDisable,
+  vim.keymap.set('n', '<leader>jsd', lspaction.eslintTsxDisable,
     { noremap = true, silent = true, desc = "insert tsx eslint disable" })
-
-  on_attach(client, buffer)
 end
 
-lspconfig.gopls.setup {
-  on_attach = function(client, buffer)
-    vim.keymap.set('n', '<leader>ee', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
-    vim.keymap.set('i', '<C-e>', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
-    on_attach(client, buffer)
-  end,
+local function LspConfig(table)
+  for k, v in pairs(table) do
+    vim.lsp.config(k, v)
+    vim.lsp.enable(k)
+  end
+end
 
-  capabilities = capabilities,
-  cmd = { "gopls" },
-  filetypes = { "go", "gomod", "gowork", "gotmpl" },
-  settings = {
-    gopls = {
-      completeUnimported = true,
-      usePlaceholders = true,
-      analyses = {
-        unusedparams = true,
+local LSP = {
+  lua_ls = {
+    cmd = { "lua-language-server" },
+    filetypes = { "lua" },
+    settings = {
+      Lua = {
+        diagnostics = {
+          globals = { "vim" },
+        },
+        workspace = {
+          library = {
+            [vim.fn.expand "$VIMRUNTIME/lua"] = true,
+            [vim.fn.expand "$VIMRUNTIME/lua/vim/lsp"] = true,
+            [vim.fn.stdpath "data" .. "/lazy/ui/nvchad_types"] = true,
+            [vim.fn.stdpath "data" .. "/lazy/lazy.nvim/lua/lazy"] = true,
+          },
+          maxPreload = 100000,
+          preloadFileSize = 10000,
+        },
       },
     },
+  },
+
+  gopls = {
+    on_attach = function(client, buffer)
+      vim.keymap.set('n', '<leader>ee', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
+      vim.keymap.set('i', '<C-e>', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
+    end,
+
+    cmd = { "gopls" },
+    filetypes = { "go", "gomod" },
+    settings = {
+      gopls = {
+        completeUnimported = true,
+        usePlaceholders = true,
+        analyses = {
+          unusedparams = true,
+        },
+      },
+    }
+  },
+
+  clangd = {
+    cmd = {
+      "clangd",
+      "--clang-tidy",
+      "--background-index",
+      "--enable-config"
+    },
+    filetypes = { "c", "cpp" }
+  },
+
+  postgres_lsp = {
+    cmd = { "postgres-language-server", "lsp-proxy" },
+    filetypes = { "sql" },
+  },
+
+  elixirls = {
+    cmd = { "language_server.sh" },
+    filetypes = { "elixir" }
+  },
+
+  bashls = {
+    cmd = { 'bash-language-server', 'start' },
+    filetypes = { 'bash', 'sh' }
+  },
+
+  -- denols = {
+    -- on_attach = ts_on_attach,
+    -- root_dir = function(fname)
+      -- return lspaction.deno_root(fname)
+    -- end,
+    -- filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+  -- },
+
+  ts_ls = {
+    on_attach = ts_on_attach,
+    filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+  },
+
+  jsonls = {
+    settings = {
+      json = {
+        schemas = require('schemastore').json.schemas(),
+        validate = { enable = true },
+      },
+    },
+    filetypes = { "json", "jsonc" },
+    format = {
+      enable = true,
+    },
+    trailingCommas = "none"
+  },
+
+  rust_analyzer = {
+    filetypes = { "rust" },
   }
 }
 
-lspconfig.clangd.setup {
-  on_attach = function(client, buffer)
-    on_attach(client, buffer)
-  end,
-  capabilities = capabilities,
-  cmd = {
-    "clangd",
-    "--clang-tidy",
-    "--background-index",
-    "--enable-config"
-  },
-  filetypes = { "c", "cpp" }
-}
 
 for _, lsp in ipairs(pythonServer) do
-  lspconfig[lsp].setup {
+  local commonConfig = {
     on_attach = function(client, buffer)
-      on_attach(client, buffer)
-
       vim.keymap.set('n', '<leader>tt', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
       vim.keymap.set('i', '<C-t>', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
     end,
-    capabilities = capabilities,
     filetypes = { "python" },
   }
+
+  LspConfig({
+    [lsp] = commonConfig,
+  })
 end
 
 for _, lsp in ipairs(normalConfigLsp) do
-  lspconfig[lsp].setup {
-    on_attach = on_attach,
-    capabilities = capabilities,
-    filetypes = { "css", "html" }
-  }
+  LspConfig({
+    [lsp] = {
+      filetypes = { "css", "html" }
+    }
+  })
 end
-
-lspconfig.postgres_lsp.setup {
-  cmd = { "postgres-language-server", "lsp-proxy" },
-  on_attach = on_attach,
-  capabilities = capabilities,
-  filetypes = { "sql" },
-}
-
-lspconfig.elixirls.setup {
-  cmd = { "language_server.sh" },
-  on_attach = on_attach,
-  capabilities = capabilities,
-  filetypes = { "elixir", "heex", "eex" }
-}
-
-lspconfig.bashls.setup {
-  cmd = { 'bash-language-server', 'start' },
-  filetypes = { 'bash', 'sh' }
-}
-
-lspconfig.denols.setup {
-  on_attach = ts_on_attach,
-  root_dir = function(fname)
-    return lspaction.deno_root(fname)
-  end,
-  capabilities = capabilities,
-}
-
-lspconfig.ts_ls.setup {
-  on_attach = ts_on_attach,
-  root_dir = function(fname)
-    if lspaction.deno_root(fname) then
-      return nil
-    end
-    return lspaction.node_root(fname)
-  end,
-}
 
 
 for _, lsp in ipairs(jsServer) do
-  lspconfig[lsp].setup {
-    on_attach = on_attach,
-    capabilities = capabilities,
-    filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-  }
+  LspConfig({
+    [lsp] = {
+      filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+    }
+  })
 end
 
-lspconfig.jsonls.setup {
-  settings = {
-    json = {
-      schemas = require('schemastore').json.schemas(),
-      validate = { enable = true },
-    },
-  },
-  filetypes = { "json", "jsonc" },
-  format = {
-    enable = true,
-  },
-  trailingCommas = "none"
-}
+LspConfig(LSP)
 
-lspconfig.autotools_ls.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-}
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client and client.server_capabilities.completionProvider then
+      vim.lsp.completion.enable(true, args.data.client_id, args.buf, { autotrigger = true })
+    end
+  end,
+})
 
-lspconfig.rust_analyzer.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-}
+vim.diagnostic.config({ virtual_text = true, float = true, virtual_lines = true })
