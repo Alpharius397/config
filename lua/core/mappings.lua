@@ -116,14 +116,14 @@ M.comment = {
   -- toggle comment in both modes
   n = {
     ["<leader>/"] = {
-      "<cmd> gcc <CR>",
+      "gcc",
       "Toggle comment",
     },
   },
 
   v = {
     ["<leader>/"] = {
-      "<cmd> gcc <CR>",
+      "gcc",
       "Toggle comment",
     },
   },

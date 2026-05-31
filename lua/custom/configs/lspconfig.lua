@@ -105,14 +105,6 @@ local LSP = {
     filetypes = { 'bash', 'sh' }
   },
 
-  -- denols = {
-    -- on_attach = ts_on_attach,
-    -- root_dir = function(fname)
-      -- return lspaction.deno_root(fname)
-    -- end,
-    -- filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-  -- },
-
   ts_ls = {
     on_attach = ts_on_attach,
     filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
