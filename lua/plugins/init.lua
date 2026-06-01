@@ -5,6 +5,53 @@ local default_plugins = {
   {
     "nvim-lua/plenary.nvim"
   },
+  -- load luasnips + cmp related in insert mode only
+  {
+    "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
+    dependencies = {
+      {
+        -- snippet plugin
+        "L3MON4D3/LuaSnip",
+        dependencies = "rafamadriz/friendly-snippets",
+        opts = { history = true, updateevents = "TextChanged,TextChangedI" },
+        config = function(_, opts)
+          require("plugins.configs.others").luasnip(opts)
+        end,
+      },
+
+      -- autopairing of (){}[] etc
+      {
+        "windwp/nvim-autopairs",
+        opts = {
+          fast_wrap = {},
+          disable_filetype = { "TelescopePrompt", "vim" },
+        },
+        config = function(_, opts)
+          require("nvim-autopairs").setup(opts)
+
+          -- setup cmp for autopairs
+          local cmp_autopairs = require "nvim-autopairs.completion.cmp"
+          require("cmp").event:on("confirm_done", cmp_autopairs.on_confirm_done())
+        end,
+      },
+
+      -- cmp sources plugins
+      {
+        "saadparwaiz1/cmp_luasnip",
+        "hrsh7th/cmp-nvim-lua",
+        "hrsh7th/cmp-nvim-lsp",
+        "hrsh7th/cmp-buffer",
+        "hrsh7th/cmp-path",
+      },
+    },
+    opts = function()
+      return require "plugins.configs.cmp"
+    end,
+    config = function(_, opts)
+      require("cmp").setup(opts)
+    end,
+  },
   {
     "NvChad/base46",
     branch = "v2.0",
@@ -179,7 +226,7 @@ if #config.plugins > 0 then
 end
 
 require("lazy").setup(default_plugins, config.lazy_nvim)
-require("custom.configs.lspconfig")
+require("custom.configs.init")
 require("custom.mappings")
 require("nvim-treesitter").install({ "lua", "vim", "vimdoc", "go", "python", "elixir", "heex", "eex", "htmldjango",
   "html", "javascript", "jinja", "json", "gitignore", "graphql", "sql", "yaml", "csv", "markdown", "typescript" })

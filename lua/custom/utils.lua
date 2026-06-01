@@ -5,5 +5,15 @@ return {
         vim.keymap.set(mode, lhs, rhs[1], { desc = rhs[2] })
       end
     end
+  end,
+
+  extend = function(list1, list2)
+    for key, value in pairs(list2) do
+      if type(key) == "number" then
+        table.insert(list1, value)
+      end
+    end
+
+    return list1
   end
 }

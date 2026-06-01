@@ -111,19 +111,21 @@ M.tabufline = {
 }
 
 M.comment = {
-  plugin = true,
-
   -- toggle comment in both modes
   n = {
-    ["<leader>/"] = {
-      "gcc",
-      "Toggle comment",
+    ["<C-_>"] = {
+      function()
+        vim.cmd("normal gcc")
+      end,
+      "Toggle comment"
     },
   },
 
   v = {
-    ["<leader>/"] = {
-      "gcc",
+    ["<C-_>"] = {
+      function()
+        vim.cmd("normal gc")
+      end,
       "Toggle comment",
     },
   },
