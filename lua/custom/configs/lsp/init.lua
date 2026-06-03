@@ -1,14 +1,28 @@
 local utils = require("custom.utils")
 
-local lspaction = require("custom.configs.lspaction")
+local lspaction = require("custom.configs.lsp.action")
 
--- TODO: add this into lsp
--- local normalConfigLsp = { "cssls", "html", "djlsp" }
+local Lsp = {}
 
-local lua = {
+local group = vim.api.nvim_create_augroup("lsp_format_on_save", { clear = false })
+
+local function on_attach(_, bufnr)
+  vim.api.nvim_clear_autocmds({ buffer = bufnr, group = group })
+  vim.api.nvim_create_autocmd("BufWritePre", {
+    buffer = bufnr,
+    group = group,
+    callback = function()
+      vim.lsp.buf.format({ bufnr = bufnr, async = false })
+    end,
+    desc = "[lsp] format on save",
+  })
+end
+
+Lsp.lua = {
   lua_ls = {
     cmd = { "lua-language-server" },
     filetypes = { "lua" },
+    on_attach = on_attach,
     settings = {
       Lua = {
         diagnostics = {
@@ -47,7 +61,7 @@ local function non_deno_root_dir(bufnr, on_dir)
   on_dir(project_root or vim.fn.getcwd())
 end
 
-local function ts_on_attach(_, _)
+local function ts_on_attach(client, bufnr)
   vim.keymap.set('n', '<leader>je', lspaction.tsExpectError,
     { noremap = true, silent = true, desc = "insert expects-errors" })
 
@@ -70,12 +84,14 @@ local function ts_on_attach(_, _)
 
   vim.keymap.set('n', '<leader>jsd', lspaction.eslintTsxDisable,
     { noremap = true, silent = true, desc = "insert tsx eslint disable" })
+
+  on_attach(client, bufnr)
 end
 
 local TsFileTypes = { "javascript", "typescript" }
 local ReactFileTypes = { "javascriptreact", "typescriptreact" }
 
-local ts = {
+Lsp.ts = {
   tailwindcss = {
     cmd = { 'tailwindcss-language-server', "--stdio" },
     filetypes = ReactFileTypes,
@@ -126,33 +142,17 @@ local ts = {
   --   cmd = { "tsgo", "--lsp", "--stdio" },
   --   on_attach = ts_on_attach,
   --   filetypes = TsFileTypes,
-  --   root_dir = function(bufnr, on_dir)
-  --     local root_markers = { 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb', 'bun.lock' }
-  --     root_markers = vim.fn.has('nvim-0.11.3') == 1 and { root_markers, { '.git' } }
-  --
-  --         or vim.list_extend(root_markers, { '.git' })
-  --
-  --     local deno_root = vim.fs.root(bufnr, { 'deno.json', 'deno.jsonc' })
-  --     local deno_lock_root = vim.fs.root(bufnr, { 'deno.lock' })
-  --     local project_root = vim.fs.root(bufnr, root_markers)
-  --
-  --     if deno_lock_root and (not project_root or #deno_lock_root > #project_root) then
-  --       return
-  --     end
-  --     if deno_root and (not project_root or #deno_root >= #project_root) then
-  --       return
-  --     end
-  --
-  --     on_dir(project_root or vim.fn.getcwd())
-  --   end,
+  --   root_dir = non_deno_root_dir
   -- },
 }
 
-local go = {
+Lsp.go = {
   gopls = {
-    on_attach = function(_, _)
+    on_attach = function(client, bufnr)
       vim.keymap.set('n', '<leader>ee', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
       vim.keymap.set('i', '<C-e>', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
+
+      on_attach(client, bufnr)
     end,
 
     cmd = { "gopls" },
@@ -175,7 +175,7 @@ local go = {
   }
 }
 
-local c = {
+Lsp.c = {
   clangd = {
     cmd = {
       "clangd",
@@ -183,31 +183,36 @@ local c = {
       "--background-index",
       "--enable-config"
     },
+    on_attach = on_attach,
     filetypes = { "c", "cpp" }
   },
 }
 
-local sql = {
+Lsp.sql = {
   postgres_lsp = {
     cmd = { "postgres-language-server", "lsp-proxy" },
+    on_attach = on_attach,
     filetypes = { "sql" },
   },
 }
 
-local elixir = {
+Lsp.elixir = {
   elixirls = {
     cmd = { "language_server.sh" },
+    on_attach = on_attach,
     filetypes = { "elixir" }
   },
 
 }
 
-local function python_on_attach(_, _)
+local function python_on_attach(client, bufnr)
   vim.keymap.set('n', '<leader>tt', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
   vim.keymap.set('i', '<C-t>', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
+
+  on_attach(client, bufnr)
 end
 
-local python = {
+Lsp.python = {
   ruff = {
     cmd = { 'ruff', 'server' },
     root_markers = { 'pyproject.toml', 'ruff.toml', '.ruff.toml', '.git' },
@@ -227,6 +232,20 @@ local python = {
       'Pipfile',
     },
     on_attach = python_on_attach
+  },
+
+  djlsp = {
+    cmd = { 'djlsp' },
+    filetypes = { 'html', 'htmldjango' },
+    root_markers = {
+      'pyrightconfig.json',
+      'pyproject.toml',
+      'setup.py',
+      'setup.cfg',
+      'requirements.txt',
+      'Pipfile',
+    },
+    on_attach = on_attach
   }
 }
 
@@ -237,14 +256,16 @@ local python = {
 --
 -- }
 
-local utility = {
+Lsp.utility = {
   bashls = {
     cmd = { 'bash-language-server', 'start' },
-    filetypes = { 'bash', 'sh' }
+    filetypes = { 'bash', 'sh' },
+    on_attach = on_attach,
   },
 
   jsonls = {
     cmd = { "vscode-json-language-server", "--stdio" },
+    on_attach = on_attach,
     settings = {
       json = {
         schemas = require('schemastore').json.schemas(),
@@ -257,15 +278,58 @@ local utility = {
     },
     trailingCommas = "none"
   },
+
+  cssls = {
+    cmd = { 'vscode-css-language-server', '--stdio' },
+    filetypes = { 'css', 'scss', 'less' },
+    init_options = { provideFormatter = true },
+    single_file_support = true,
+    settings = {
+      css = { validate = true },
+      scss = { validate = true },
+      less = { validate = true },
+    },
+    on_attach = on_attach
+  },
+
+  html = {
+    cmd = { 'vscode-html-language-server', '--stdio' },
+    filetypes = { 'html', 'templ' },
+    on_attach = on_attach,
+    single_file_support = true,
+    init_options = {
+      provideFormatter = true,
+      embeddedLanguages = { css = true, javascript = true },
+      configurationSection = { 'html', 'css', 'javascript' },
+    }
+  },
 }
 
+local function LspConfig(table)
+  for k, v in pairs(table) do
+    vim.lsp.config(k, v)
+    vim.lsp.enable(k)
+  end
+end
+
 return {
-  lua = lua,
-  go = go,
-  ts = ts,
-  elixir = elixir,
-  utility = utility,
-  c = c,
-  python = python,
-  sql = sql
+  load_lsp = function()
+    for _, lsp in pairs(Lsp) do
+      LspConfig(lsp)
+    end
+
+    -- vim.api.nvim_create_autocmd('LspAttach', {
+    --   callback = function(args)
+    --     local client = vim.lsp.get_client_by_id(args.data.client_id)
+    --     if client and client.server_capabilities.completionProvider then
+    --       vim.lsp.completion.enable(true, args.data.client_id, args.buf, { autotrigger = true })
+    --     end
+    --   end,
+    -- })
+
+
+    vim.diagnostic.config({ virtual_text = true, float = true, virtual_lines = true })
+
+    require("core.utils").load_mappings "lspconfig"
+  end
 }

@@ -124,8 +124,4 @@ M.dap_go = {
   },
 }
 
-local apply = require("custom.utils").applyMappings
-
-apply(M.dap)
-apply(M.dap_go)
-apply(M.dap_python)
+return M

@@ -219,14 +219,14 @@ local default_plugins = {
 
 local config = require("core.utils").load_config()
 
-require("custom.commands.transparent-bg")
 
 if #config.plugins > 0 then
   table.insert(default_plugins, { import = config.plugins })
 end
 
 require("lazy").setup(default_plugins, config.lazy_nvim)
-require("custom.configs.init")
-require("custom.mappings")
+
+require("custom.init").load_custom()
+
 require("nvim-treesitter").install({ "lua", "vim", "vimdoc", "go", "python", "elixir", "heex", "eex", "htmldjango",
   "html", "javascript", "jinja", "json", "gitignore", "graphql", "sql", "yaml", "csv", "markdown", "typescript" })
