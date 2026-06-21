@@ -2,53 +2,16 @@ local utils = require("custom.utils")
 
 local lspaction = require("custom.configs.lsp.action")
 
+local formatter = require("custom.configs.lsp.formatter")
+
 local Lsp = {}
 
-local group = vim.api.nvim_create_augroup("lsp_format_on_save", { clear = false })
-
-local function prettier_format()
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-
-  local text = table.concat(lines, '\n')
-
-  local file = vim.api.nvim_buf_get_name(0)
-
-  local result = vim.system({
-    "prettier", "--stdin-filepath", file
-  }, {
-    stdin = text
-  }):wait()
-
-
-  if result.code ~= 0 then
-    vim.notify(result.stderr, vim.log.levels.ERROR)
-    return
-  end
-
-  local view = vim.fn.winsaveview()
-
-  vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(result.stdout, "\n", { plain = true }))
-
-  vim.fn.winrestview(view)
-end
-
-local function on_attach(_, bufnr)
-  vim.api.nvim_clear_autocmds({ buffer = bufnr, group = group })
-  vim.api.nvim_create_autocmd("BufWritePre", {
-    buffer = bufnr,
-    group = group,
-    callback = function()
-      vim.lsp.buf.format({ bufnr = bufnr, async = false })
-    end,
-    desc = "[lsp] format on save",
-  })
-end
 
 Lsp.lua = {
   lua_ls = {
     cmd = { "lua-language-server" },
     filetypes = { "lua" },
-    on_attach = on_attach,
+    on_attach = formatter.on_attach,
     settings = {
       Lua = {
         diagnostics = {
@@ -87,7 +50,7 @@ local function non_deno_root_dir(bufnr, on_dir)
   on_dir(project_root or vim.fn.getcwd())
 end
 
-local function ts_on_attach(client, bufnr)
+local function ts_on_attach(_, bufnr)
   vim.keymap.set('n', '<leader>je', lspaction.tsExpectError,
     { noremap = true, silent = true, desc = "insert expects-errors" })
 
@@ -111,12 +74,12 @@ local function ts_on_attach(client, bufnr)
   vim.keymap.set('n', '<leader>jsd', lspaction.eslintTsxDisable,
     { noremap = true, silent = true, desc = "insert tsx eslint disable" })
 
-  vim.api.nvim_clear_autocmds({ buffer = bufnr, group = group })
+  vim.api.nvim_clear_autocmds({ buffer = bufnr, group = formatter.group })
 
   vim.api.nvim_create_autocmd("BufWritePre", {
     buffer = bufnr,
-    group = group,
-    callback = prettier_format,
+    group = formatter.group,
+    callback = formatter.prettier_format,
     desc = "[lsp] format on save",
   })
 end
@@ -185,7 +148,7 @@ Lsp.go = {
       vim.keymap.set('n', '<leader>ee', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
       vim.keymap.set('i', '<C-e>', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
 
-      on_attach(client, bufnr)
+      formatter.on_attach(client, bufnr)
     end,
 
     cmd = { "gopls" },
@@ -216,7 +179,7 @@ Lsp.c = {
       "--background-index",
       "--enable-config"
     },
-    on_attach = on_attach,
+    on_attach = formatter.on_attach,
     filetypes = { "c", "cpp" }
   },
 }
@@ -224,7 +187,7 @@ Lsp.c = {
 Lsp.sql = {
   postgres_lsp = {
     cmd = { "postgres-language-server", "lsp-proxy" },
-    on_attach = on_attach,
+    on_attach = formatter.on_attach,
     filetypes = { "sql" },
   },
 }
@@ -232,7 +195,7 @@ Lsp.sql = {
 Lsp.elixir = {
   elixirls = {
     cmd = { "language_server.sh" },
-    on_attach = on_attach,
+    on_attach = formatter.on_attach,
     filetypes = { "elixir" }
   },
 
@@ -242,7 +205,7 @@ local function python_on_attach(client, bufnr)
   vim.keymap.set('n', '<leader>tt', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
   vim.keymap.set('i', '<C-t>', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
 
-  on_attach(client, bufnr)
+  formatter.on_attach(client, bufnr)
 end
 
 Lsp.python = {
@@ -278,7 +241,7 @@ Lsp.python = {
       'requirements.txt',
       'Pipfile',
     },
-    on_attach = on_attach
+    on_attach = formatter.on_attach
   }
 }
 
@@ -293,12 +256,12 @@ Lsp.utility = {
   bashls = {
     cmd = { 'bash-language-server', 'start' },
     filetypes = { 'bash', 'sh' },
-    on_attach = on_attach,
+    on_attach = formatter.on_attach,
   },
 
   jsonls = {
     cmd = { "vscode-json-language-server", "--stdio" },
-    on_attach = on_attach,
+    on_attach = formatter.on_attach,
     settings = {
       json = {
         schemas = require('schemastore').json.schemas(),
@@ -322,13 +285,13 @@ Lsp.utility = {
       scss = { validate = true },
       less = { validate = true },
     },
-    on_attach = on_attach
+    on_attach = formatter.on_attach
   },
 
   html = {
     cmd = { 'vscode-html-language-server', '--stdio' },
     filetypes = { 'html', 'templ' },
-    on_attach = on_attach,
+    on_attach = formatter.on_attach,
     single_file_support = true,
     init_options = {
       provideFormatter = true,
