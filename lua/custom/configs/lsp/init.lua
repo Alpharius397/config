@@ -101,31 +101,31 @@ Lsp.ts = {
     end,
   },
 
-  deno_ls = {
-    cmd = { 'deno', 'lsp' },
-    cmd_env = { NO_COLOR = true },
-    filetypes = {
-      'javascript',
-      'javascriptreact',
-      'typescript',
-      'typescriptreact',
-    },
-
-    root_dir = function(bufnr, on_dir)
-      local root_markers = { 'deno.lock', 'deno.json', 'deno.jsonc' }
-      root_markers = { root_markers, { '.git' } }
-      local deno_root = vim.fs.root(bufnr, { 'deno.json', 'deno.jsonc' })
-      local deno_lock_root = vim.fs.root(bufnr, { 'deno.lock' })
-      local project_root = vim.fs.root(bufnr, root_markers)
-
-      if
-          (deno_lock_root and (not project_root or #deno_lock_root > #project_root))
-          or (deno_root and (not project_root or #deno_root >= #project_root))
-      then
-        on_dir(project_root or deno_lock_root or deno_root)
-      end
-    end,
-  },
+  -- deno_ls = {
+  --   cmd = { 'deno', 'lsp' },
+  --   cmd_env = { NO_COLOR = true },
+  --   filetypes = {
+  --     'javascript',
+  --     'javascriptreact',
+  --     'typescript',
+  --     'typescriptreact',
+  --   },
+  --
+  --   root_dir = function(bufnr, on_dir)
+  --     local root_markers = { 'deno.lock', 'deno.json', 'deno.jsonc' }
+  --     root_markers = { root_markers, { '.git' } }
+  --     local deno_root = vim.fs.root(bufnr, { 'deno.json', 'deno.jsonc' })
+  --     local deno_lock_root = vim.fs.root(bufnr, { 'deno.lock' })
+  --     local project_root = vim.fs.root(bufnr, root_markers)
+  --
+  --     if
+  --         (deno_lock_root and (not project_root or #deno_lock_root > #project_root))
+  --         or (deno_root and (not project_root or #deno_root >= #project_root))
+  --     then
+  --       on_dir(project_root or deno_lock_root or deno_root)
+  --     end
+  --   end,
+  -- },
 
   -- ts_ls = {
   --   cmd = { "typescript-language-server", "--stdio" },
@@ -142,47 +142,47 @@ Lsp.ts = {
   },
 }
 
-Lsp.go = {
-  gopls = {
-    on_attach = function(client, bufnr)
-      vim.keymap.set('n', '<leader>ee', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
-      vim.keymap.set('i', '<C-e>', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
-
-      formatter.on_attach(client, bufnr)
-    end,
-
-    cmd = { "gopls" },
-    filetypes = { "go", "gomod" },
-    settings = {
-      gopls = {
-        completeUnimported = true,
-        usePlaceholders = true,
-        analyses = {
-          unusedparams = true,
-        },
-      },
-    }
-  },
-
-  templ = {
-    cmd = { 'templ', 'lsp' },
-    filetypes = { 'templ' },
-    root_markers = { 'go.work', 'go.mod', '.git' },
-  }
-}
-
-Lsp.c = {
-  clangd = {
-    cmd = {
-      "clangd",
-      "--clang-tidy",
-      "--background-index",
-      "--enable-config"
-    },
-    on_attach = formatter.on_attach,
-    filetypes = { "c", "cpp" }
-  },
-}
+-- Lsp.go = {
+--   gopls = {
+--     on_attach = function(client, bufnr)
+--       vim.keymap.set('n', '<leader>ee', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
+--       vim.keymap.set('i', '<C-e>', lspaction.goError, { noremap = true, silent = true, desc = "Error Block" })
+--
+--       on_attach(client, bufnr)
+--     end,
+--
+--     cmd = { "gopls" },
+--     filetypes = { "go", "gomod" },
+--     settings = {
+--       gopls = {
+--         completeUnimported = true,
+--         usePlaceholders = true,
+--         analyses = {
+--           unusedparams = true,
+--         },
+--       },
+--     }
+--   },
+--
+--   templ = {
+--     cmd = { 'templ', 'lsp' },
+--     filetypes = { 'templ' },
+--     root_markers = { 'go.work', 'go.mod', '.git' },
+--   }
+-- }
+--
+-- Lsp.c = {
+--   clangd = {
+--     cmd = {
+--       "clangd",
+--       "--clang-tidy",
+--       "--background-index",
+--       "--enable-config"
+--     },
+--     on_attach = on_attach,
+--     filetypes = { "c", "cpp" }
+--   },
+-- }
 
 Lsp.sql = {
   postgres_lsp = {
@@ -192,14 +192,13 @@ Lsp.sql = {
   },
 }
 
-Lsp.elixir = {
-  elixirls = {
-    cmd = { "language_server.sh" },
-    on_attach = formatter.on_attach,
-    filetypes = { "elixir" }
-  },
-
-}
+-- Lsp.elixir = {
+--   elixirls = {
+--     cmd = { "language_server.sh" },
+--     on_attach = on_attach,
+--     filetypes = { "elixir" }
+--   },
+-- }
 
 local function python_on_attach(client, bufnr)
   vim.keymap.set('n', '<leader>tt', lspaction.type_ignore, { noremap = true, silent = true, desc = "Type Ignore" })
