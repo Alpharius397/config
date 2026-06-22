@@ -15,6 +15,12 @@ M.setup_ui = function()
   dap.listeners.before.event_exited["dapui_config"] = function()
     dapui.close()
   end
+
+  local mapping = require("custom.configs.dap.mappings")
+
+  require("custom.utils").applyMappings(mapping.dap)
+  require("custom.utils").applyMappings(mapping.dap_go)
+  require("custom.utils").applyMappings(mapping.dap_python)
 end
 
 M.setup_python = function()

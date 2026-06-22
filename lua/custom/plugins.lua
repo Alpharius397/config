@@ -31,6 +31,7 @@ local plugins = {
     ft = "go",
     dependencies = "mfussenegger/nvim-dap",
     config = function()
+      require("custom.configs.dap.init").setup_ui()
       require("dap-go").setup()
       require("core.utils").load_mappings "dap_go"
     end,
