@@ -51,6 +51,7 @@ local plugins = {
         "djlint",
         "eslint_d",
         "gopls",
+        "templ",
         "html-lsp",
         "json-lsp",
         "lua-language-server",
