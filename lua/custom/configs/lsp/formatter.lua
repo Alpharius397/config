@@ -41,5 +41,5 @@ end
 return {
   group = group,
   on_attach = on_attach,
-  prettier_forma = prettier_format
+  prettier_format = prettier_format
 }

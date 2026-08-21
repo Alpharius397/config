@@ -79,7 +79,9 @@ local function ts_on_attach(_, bufnr)
   vim.api.nvim_create_autocmd("BufWritePre", {
     buffer = bufnr,
     group = formatter.group,
-    callback = formatter.prettier_format,
+    callback = function()
+      formatter.prettier_format()
+    end,
     desc = "[lsp] format on save",
   })
 end
@@ -299,6 +301,22 @@ Lsp.utility = {
       configurationSection = { 'html', 'css', 'javascript' },
     }
   },
+}
+
+local function markdown_on_attach(client, bufnr)
+  vim.keymap.set('n', '<leader>ms', lspaction.markdownStrikethrough,
+    { noremap = true, silent = true, desc = "Toogle Markdown Strikethrough" })
+
+  formatter.on_attach(client, bufnr)
+end
+
+Lsp.markdown = {
+  marksman = {
+    cmd = { 'marksman', 'server' },
+    filetypes = { 'markdown' },
+    on_attach = markdown_on_attach,
+    single_file_support = true
+  }
 }
 
 local function LspConfig(table)
