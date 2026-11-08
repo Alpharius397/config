@@ -1,7 +1,12 @@
+---@param str string
+---@param defaultStr string | nil
+---@return string
 local function defaultString(str, defaultStr)
   return str or (defaultStr or "")
 end
 
+---@param attrs string[]
+---@return string
 local function expressComment(attrs)
   local cmd = "<ESC>O/**<CR>"
   for _, attr in ipairs(attrs) do
@@ -30,6 +35,7 @@ local function markdownStrikethrough()
   vim.api.nvim_set_current_line(defaultString(indent) .. "~~" .. defaultString(line) .. "~~" .. "  ")
 end
 
+
 return {
   goError               = "<ESC>oif err != nil {<CR>}<ESC>O",
 
@@ -51,5 +57,7 @@ return {
 
   expressComment        = expressComment({ "@desc", "@route", "@method", "@access" }),
 
-  markdownStrikethrough = markdownStrikethrough
+  markdownStrikethrough = markdownStrikethrough,
+
+  makefileColors        = makefileColors,
 }

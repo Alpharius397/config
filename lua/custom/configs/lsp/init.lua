@@ -1,8 +1,7 @@
 local utils = require("custom.utils")
-
 local lspaction = require("custom.configs.lsp.action")
-
 local formatter = require("custom.configs.lsp.formatter")
+local makeColors = require("custom.commands.make-color-line")
 
 local Lsp = {}
 
@@ -316,6 +315,40 @@ Lsp.markdown = {
     filetypes = { 'markdown' },
     on_attach = markdown_on_attach,
     single_file_support = true
+  }
+}
+
+
+local function make_on_attach(client, bufnr)
+  vim.keymap.set('n', '<leader>mc', makeColors.makefileColors,
+    { noremap = true, silent = true, desc = "Insert Makefile colors" })
+
+  vim.keymap.set('n', '<leader>mcr', makeColors.makefileColorEcho("Red"),
+    { noremap = true, silent = true, desc = "Insert Red Echo Statement" })
+
+  vim.keymap.set('n', '<leader>mcg', makeColors.makefileColorEcho("Green"),
+    { noremap = true, silent = true, desc = "Insert Green Echo Statement" })
+
+  vim.keymap.set('n', '<leader>mcy', makeColors.makefileColorEcho("Yellow"),
+    { noremap = true, silent = true, desc = "Insert Yellow Echo Statement" })
+
+  vim.keymap.set('n', '<leader>mcc', makeColors.makefileColorEcho("Cyan"),
+    { noremap = true, silent = true, desc = "Insert Cyan Echo Statement" })
+
+  vim.keymap.set('n', '<leader>mcp', makeColors.makefileColorEcho("Purple"),
+    { noremap = true, silent = true, desc = "Insert Purple Echo Statement" })
+
+  formatter.on_attach(client, bufnr)
+end
+
+Lsp.make = {
+  make = {
+    cmd = { 'make-ls' },
+    filetypes = { 'make' },
+    on_attach = make_on_attach,
+    root_markers = {
+      "Makefile", "makefile", "GNUmakefile",
+    },
   }
 }
 
